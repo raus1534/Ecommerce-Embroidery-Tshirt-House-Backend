@@ -1,44 +1,55 @@
 const User = require("../models/User");
-const CryptoJS = require("crypto-js");
-const jwt = require("jsonwebtoken");
-const { sendError } = require("../utils/errorHandle");
 
-exports.registerUser = async (req, res) => {
-  const { name, username, email, password } = req.body;
-  const newUser = new User({
-    name,
-    username,
-    email,
-    password: CryptoJS.AES.encrypt(password, process.env.PASS_SEC).toString(),
-  });
+exports.updateUser = async (req, res) => {
+  if (req.body.password) {
+    req.body.password = CryptoJS.AES.encrypt(
+      req.body.password,
+      process.env.PASS_SEC
+    ).toString();
+  }
 
-  await newUser.save();
-  res.json({ newUser });
+  const updatedUser = await User.findByIdAndUpdate(
+    req.params.id,
+    {
+      $set: req.body,
+    },
+    { new: true }
+  );
+  res.status(200).json(updatedUser);
+
+  res.status(500).json(err);
 };
 
-exports.loginUser = async (req, res) => {
-  const { username } = req.body;
-
-  const user = await User.findOne({ username });
-  if (!user) return res.status(401).json("Wrong1 credentials!");
-
-  const hashedPassword = CryptoJS.AES.decrypt(
-    user.password,
-    process.env.PASS_SEC
-  );
-  const OriginalPassword = hashedPassword.toString(CryptoJS.enc.Utf8);
-
-  if (OriginalPassword !== req.body.password)
-    return sendError(res, "Wrong Credentials");
-
-  const accessToken = jwt.sign(
-    {
-      id: user._id,
-      isAdmin: user.isAdmin,
-    },
-    process.env.JWT_SEC,
-    { expiresIn: "3d" }
-  );
+exports.findUserById = async (req, res) => {
+  const user = await User.findById(req.params.id);
   const { password, ...others } = user._doc;
-  res.status(200).json({ user: { ...others, accessToken } });
+  res.status(200).json(others);
+  res.status(500).json(err);
+};
+
+exports.deleteUser = async (req, res) => {
+  await User.findByIdAndDelete(req.params.id);
+  res.status(200).json("User has been deleted...");
+
+  res.status(500).json(err);
+};
+exports.getStats = async (req, res) => {
+  const date = new Date();
+  const lastYear = new Date(date.setFullYear(date.getFullYear() - 1));
+
+  const data = await User.aggregate([
+    { $match: { createdAt: { $gte: lastYear } } },
+    {
+      $project: {
+        month: { $month: "$createdAt" },
+      },
+    },
+    {
+      $group: {
+        _id: "$month",
+        total: { $sum: 1 },
+      },
+    },
+  ]);
+  res.status(200).json(data);
 };
