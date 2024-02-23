@@ -1,4 +1,5 @@
 const Product = require("../models/Product");
+const { sendError } = require("../utils/errorHandle");
 
 exports.addProduct = async (req, res) => {
   const newProduct = new Product(req.body);
@@ -27,7 +28,6 @@ exports.deleteProduct = async (req, res) => {
 
 exports.findProductById = async (req, res) => {
   const product = await Product.findById(req.params.id);
+  if (!product) return sendError(res, "Product Not Found");
   res.status(200).json(product);
-
-  res.status(500).json(err);
 };

@@ -33,7 +33,7 @@ exports.loginUser = async (req, res) => {
 
   const accessToken = jwt.sign(
     {
-      id: user._id,
+      user,
       isAdmin: user.isAdmin,
     },
     process.env.JWT_SEC,
@@ -41,4 +41,9 @@ exports.loginUser = async (req, res) => {
   );
   const { password, ...others } = user._doc;
   res.status(200).json({ user: { ...others, accessToken } });
+};
+
+exports.setAuthInfo = async (req, res) => {
+  const { user } = req;
+  res.json({ user });
 };

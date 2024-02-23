@@ -12,6 +12,7 @@ require("./db");
 const authRoute = require("./routes/auth");
 const userRoute = require("./routes/user");
 const productRoute = require("./routes/product");
+const cartRoute = require("./routes/cart");
 
 const { errorHandle } = require("./middleware/errorHandle");
 const { handleNotFound } = require("./utils/errorHandle");
@@ -19,7 +20,8 @@ const { handleNotFound } = require("./utils/errorHandle");
 app.use("/api/auth/", authRoute);
 app.use("/api/users", userRoute);
 app.use("/api/products", productRoute);
-// app.use("/api/user");
+app.use("/api/cart", cartRoute);
+
 app.use("/*", handleNotFound);
 
 //Async Await Error Handle
