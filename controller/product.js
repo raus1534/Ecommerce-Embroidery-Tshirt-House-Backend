@@ -2,6 +2,7 @@ const Product = require("../models/Product");
 const { sendError } = require("../utils/errorHandle");
 
 exports.addProduct = async (req, res) => {
+  console.log(req.body);
   const newProduct = new Product(req.body);
 
   const savedProduct = await newProduct.save();

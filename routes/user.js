@@ -16,7 +16,7 @@ const router = require("express").Router();
 router.put("/:id", verifyTokenAndAuthorization, updateUser);
 router.delete("/:id", verifyTokenAndAuthorization, deleteUser);
 router.get("/find/:id", verifyTokenAndAdmin, findUserById);
-router.get("/", verifyTokenAndAdmin, async (req, res) => {
+router.get("/", async (req, res) => {
   const query = req.query.new;
   try {
     const users = query
@@ -28,6 +28,6 @@ router.get("/", verifyTokenAndAdmin, async (req, res) => {
   }
 });
 
-router.get("/stats", verifyTokenAndAdmin, getStats);
+router.get("/stats", getStats);
 
 module.exports = router;

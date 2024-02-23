@@ -13,5 +13,6 @@ exports.isAuth = async (req, res, next) => {
   if (!userData) return sendError(res, "User Profile Doesn't Exist");
 
   req.user = user;
+  
   next();
 };

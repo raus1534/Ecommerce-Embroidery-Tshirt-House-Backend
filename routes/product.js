@@ -12,7 +12,7 @@ const {
 } = require("../controller/product");
 const router = require("express").Router();
 
-router.post("/add", verifyTokenAndAdmin, addProduct);
+router.post("/add", addProduct);
 router.put("/update/:id", verifyTokenAndAdmin, updateProduct);
 router.delete("/:id", verifyTokenAndAdmin, deleteProduct);
 router.get("/find/:id", findProductById);
