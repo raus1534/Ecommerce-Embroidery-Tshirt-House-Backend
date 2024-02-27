@@ -39,3 +39,35 @@ exports.getCartItems = async (req, res) => {
 
   res.json({ existingCart: cartDetail, total: existingCart.total });
 };
+exports.updateCart = async (req, res) => {
+  const { userId, productId, newQuantity, total } = req.body;
+
+  const existingCart = await Cart.findOne({ userId });
+
+  if (!existingCart) return sendError(res, "No Products Found");
+
+  const result = await Cart.updateOne(
+    { userId: userId, "products.productId": productId },
+    { $set: { "products.$.quantity": newQuantity, total } }
+  );
+
+  if (!result) return sendError("error", "Can't Update The Cart At The Moment");
+
+  res.json({ updated: true });
+};
+exports.removeFromCart = async (req, res) => {
+  const { userId, productId, total } = req.body;
+
+  const existingCart = await Cart.findOne({ userId });
+
+  if (!existingCart) return sendError(res, "No Products Found");
+
+  const result = await Cart.updateOne(
+    { userId: userId },
+    { $pull: { products: { productId: productId } }, $set: { total } }
+  );
+
+  if (!result) return sendError("error", "Can't Update The Cart At The Moment");
+
+  res.json({ updated: true });
+};

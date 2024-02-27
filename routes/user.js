@@ -10,12 +10,13 @@ const {
   findUserById,
   getStats,
 } = require("../controller/user");
+const { isAuth, isAdmin } = require("../middleware/isAuth");
 
 const router = require("express").Router();
 
-router.put("/:id", verifyTokenAndAuthorization, updateUser);
-router.delete("/:id", verifyTokenAndAuthorization, deleteUser);
-router.get("/find/:id", verifyTokenAndAdmin, findUserById);
+router.put("/:id", isAuth, isAdmin, updateUser);
+router.delete("/:id", isAuth, isAdmin, deleteUser);
+router.get("/find/:id", isAuth, isAdmin, findUserById);
 router.get("/", async (req, res) => {
   const query = req.query.new;
   try {

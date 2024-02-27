@@ -15,7 +15,7 @@ const router = require("express").Router();
 router.post("/add", addProduct);
 router.put("/update/:id", verifyTokenAndAdmin, updateProduct);
 router.delete("/:id", verifyTokenAndAdmin, deleteProduct);
-router.get("/find/:id", findProductById);
+router.get("/find/:productId", findProductById);
 
 router.get("/", async (req, res) => {
   let qNew = req.query.new;

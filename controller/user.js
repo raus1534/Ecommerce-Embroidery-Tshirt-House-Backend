@@ -1,4 +1,5 @@
 const User = require("../models/User");
+const { sendError } = require("../utils/errorHandle");
 
 exports.updateUser = async (req, res) => {
   if (req.body.password) {
@@ -21,18 +22,23 @@ exports.updateUser = async (req, res) => {
 };
 
 exports.findUserById = async (req, res) => {
-  const user = await User.findById(req.params.id);
+  const { userId } = req.params;
+  const user = await User.findById(userId);
+  if (!user) return sendError(res, "User Doesn't Exist");
   const { password, ...others } = user._doc;
-  res.status(200).json(others);
-  res.status(500).json(err);
+  res.status(200).json({ user: others });
 };
 
 exports.deleteUser = async (req, res) => {
-  await User.findByIdAndDelete(req.params.id);
-  res.status(200).json("User has been deleted...");
+  const { userId } = req.params;
+  const user = await User.findById(userId);
+  if (!user) return sendError(res, "User Doesn't Exist");
 
-  res.status(500).json(err);
+  await User.findByIdAndDelete(userId);
+
+  res.status(200).json("User Has Been Deleted");
 };
+
 exports.getStats = async (req, res) => {
   const date = new Date();
   const lastYear = new Date(date.setFullYear(date.getFullYear() - 1));

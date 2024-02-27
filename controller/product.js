@@ -1,3 +1,4 @@
+const { isValidObjectId } = require("mongoose");
 const Product = require("../models/Product");
 const { sendError } = require("../utils/errorHandle");
 
@@ -28,7 +29,11 @@ exports.deleteProduct = async (req, res) => {
 };
 
 exports.findProductById = async (req, res) => {
-  const product = await Product.findById(req.params.id);
-  if (!product) return sendError(res, "Product Not Found");
-  res.status(200).json(product);
+  const { productId } = req.params;
+  if (!isValidObjectId(productId))
+    return sendError("error", "Invalid Product Id");
+  const product = await Product.findById(productId);
+  if (!product) return sendError("error", "Product Not Found");
+
+  res.json({ product });
 };

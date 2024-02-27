@@ -13,6 +13,12 @@ exports.isAuth = async (req, res, next) => {
   if (!userData) return sendError(res, "User Profile Doesn't Exist");
 
   req.user = user;
-  
+
+  next();
+};
+
+exports.isAdmin = async (req, res, next) => {
+  const { user } = req;
+  if (!user?.isAdmin) return sendError(res, "Unauthorized Access");
   next();
 };
