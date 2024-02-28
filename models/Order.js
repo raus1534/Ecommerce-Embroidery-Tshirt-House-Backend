@@ -15,7 +15,21 @@ const OrderSchema = new mongoose.Schema(
         },
       },
     ],
-    total: { type: Number },
+    total: {
+      type: Number,
+    },
+    shippingAddress: {
+      type: String,
+      required: true,
+    },
+    paymentMethod: {
+      type: String,
+      required: true,
+    },
+    transactionCode: {
+      type: String,
+      default: null,
+    },
   },
   { timestamps: true }
 );
