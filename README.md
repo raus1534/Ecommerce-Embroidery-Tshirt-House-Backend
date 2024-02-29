@@ -16,6 +16,10 @@ To run this project, you will need to add the following environment variables to
 `JWT_SEC`
 `PASS_SEC`
 
+#### [KHALTI](https://docs.khalti.com/khalti-epayment/) Secret Key:
+
+`KHALTI_KEY`
+
 
 ## Run Locally
 

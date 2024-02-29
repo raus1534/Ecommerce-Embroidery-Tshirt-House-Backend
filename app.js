@@ -15,6 +15,7 @@ const productRoute = require("./routes/product");
 const cartRoute = require("./routes/cart");
 const orderRoute = require("./routes/order");
 const paymentRoute = require("./routes/payment");
+const adminRoute = require("./routes/admin");
 
 const { errorHandle } = require("./middleware/errorHandle");
 const { handleNotFound } = require("./utils/errorHandle");
@@ -25,6 +26,7 @@ app.use("/api/products", productRoute);
 app.use("/api/cart", cartRoute);
 app.use("/api/order", orderRoute);
 app.use("/api/payment", paymentRoute);
+app.use("/api/admin", adminRoute);
 
 app.use("/*", handleNotFound);
 
