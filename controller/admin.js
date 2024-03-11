@@ -39,9 +39,10 @@ exports.getFeatureInfoDetails = async (req, res) => {
 exports.getUserDetails = async (req, res) => {
   const { new: isNew } = req.query;
 
-  const users = isNew
-    ? await User.find().sort({ _id: -1 }).limit(5)
-    : await User.find();
+  const users =
+    isNew === "true"
+      ? await User.find().sort({ _id: -1 }).limit(5)
+      : await User.find({ isAdmin: false });
   res.status(200).json({ users });
 };
 

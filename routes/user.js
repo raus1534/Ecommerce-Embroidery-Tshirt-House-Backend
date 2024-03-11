@@ -10,7 +10,7 @@ const { isAuth, isAdmin } = require("../middleware/isAuth");
 const router = require("express").Router();
 
 router.put("/:id", isAuth, isAdmin, updateUser);
-router.delete("/:id", isAuth, isAdmin, deleteUser);
+router.delete("/:userId", isAuth, isAdmin, deleteUser);
 router.get("/find/:id", isAuth, isAdmin, findUserById);
 
 router.get("/stats", getStats);

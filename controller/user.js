@@ -1,3 +1,4 @@
+const Cart = require("../models/Cart");
 const User = require("../models/User");
 const { sendError } = require("../utils/errorHandle");
 
@@ -35,8 +36,9 @@ exports.deleteUser = async (req, res) => {
   if (!user) return sendError(res, "User Doesn't Exist");
 
   await User.findByIdAndDelete(userId);
+  await Cart.findOneAndDelete({ userId });
 
-  res.status(200).json("User Has Been Deleted");
+  res.status(200).json({ message: "User Has Been Deleted" });
 };
 
 exports.getStats = async (req, res) => {
