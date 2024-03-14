@@ -3,7 +3,7 @@ const {
   updateUser,
   deleteUser,
   findUserById,
-  getStats,
+  userStats,
 } = require("../controller/user");
 const { isAuth, isAdmin } = require("../middleware/isAuth");
 
@@ -13,6 +13,6 @@ router.put("/:id", isAuth, isAdmin, updateUser);
 router.delete("/:userId", isAuth, isAdmin, deleteUser);
 router.get("/find/:id", isAuth, isAdmin, findUserById);
 
-router.get("/stats", getStats);
+router.get("/stats", isAuth, isAdmin, userStats);
 
 module.exports = router;

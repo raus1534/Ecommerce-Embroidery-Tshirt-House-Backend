@@ -1,13 +1,14 @@
 const mongoose = require("mongoose");
+const { generateRandomString } = require("../utils/helper");
 
 const OrderSchema = new mongoose.Schema(
   {
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: "user" },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     products: [
       {
         productId: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: "product",
+          ref: "Product",
         },
         quantity: {
           type: Number,
@@ -22,13 +23,21 @@ const OrderSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    shippingContact: {
+      type: Number,
+    },
     paymentMethod: {
       type: String,
       required: true,
     },
     transactionCode: {
       type: String,
-      default: null,
+      default: generateRandomString(),
+    },
+    status: {
+      type: String,
+      default: "Pending",
+      enum: ["Pending", "Delivered"],
     },
   },
   { timestamps: true }

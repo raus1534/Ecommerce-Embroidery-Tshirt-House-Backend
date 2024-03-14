@@ -29,11 +29,34 @@ exports.getFeatureInfoDetails = async (req, res) => {
         total: { $sum: "$sales" },
       },
     },
+    {
+      $sort: { _id: 1 }, // Sort by _id in ascending order
+    },
+  ]);
+
+  const totalSales = await Order.aggregate([
+    {
+      $group: {
+        _id: null,
+        totalSum: { $sum: "$total" },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        totalSum: 1,
+      },
+    },
   ]);
 
   const userCount = await User.countDocuments();
   const productCount = await Product.countDocuments();
-  res.status(200).json({ income, users: userCount, products: productCount });
+  res.status(200).json({
+    income,
+    users: userCount,
+    products: productCount,
+    totalSales: totalSales[0].totalSum,
+  });
 };
 
 exports.getUserDetails = async (req, res) => {
@@ -49,8 +72,9 @@ exports.getUserDetails = async (req, res) => {
 exports.getOrderDetails = async (req, res) => {
   const { new: isNew } = req.query;
 
-  const orders = isNew
-    ? await Order.find().sort({ _id: -1 }).limit(12)
-    : await Order.find();
+  const orders =
+    isNew === "true"
+      ? await Order.find().sort({ _id: -1 }).limit(8)
+      : await Order.find({}).populate("userId").sort({ createdAt: -1 });
   res.status(200).json({ orders });
 };

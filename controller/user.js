@@ -41,12 +41,12 @@ exports.deleteUser = async (req, res) => {
   res.status(200).json({ message: "User Has Been Deleted" });
 };
 
-exports.getStats = async (req, res) => {
-  const date = new Date();
-  const lastYear = new Date(date.setFullYear(date.getFullYear() - 1));
+exports.userStats = async (req, res) => {
+  const currentDate = new Date();
+  const startOfYear = new Date(currentDate.getFullYear(), 0, 1); // January 1st of the current year
 
   const data = await User.aggregate([
-    { $match: { createdAt: { $gte: lastYear } } },
+    { $match: { createdAt: { $gte: startOfYear } } },
     {
       $project: {
         month: { $month: "$createdAt" },
@@ -58,6 +58,8 @@ exports.getStats = async (req, res) => {
         total: { $sum: 1 },
       },
     },
+    { $sort: { _id: 1 } }, // Sort by _id in ascending order
   ]);
-  res.status(200).json(data);
+  res.status(200).json({ userStats: data });
 };
+

@@ -3,9 +3,11 @@ const Cart = require("../models/Cart");
 const Order = require("../models/Order");
 const { sendError } = require("../utils/errorHandle");
 const { createSignature } = require("../utils/helper");
+const { isValidObjectId } = require("mongoose");
+const { ObjectId } = require("mongodb");
 
 exports.placeOrder = async (req, res) => {
-  const { userId, shippingAddress, payment_method } = req.body;
+  const { userId, shippingAddress, shippingContact, payment_method } = req.body;
 
   const existingCart = await Cart.findOne({ userId });
   const { products, total } = existingCart;
@@ -14,6 +16,7 @@ exports.placeOrder = async (req, res) => {
     products,
     total,
     shippingAddress,
+    shippingContact,
     paymentMethod: payment_method,
   });
   if (!order) return sendError(res, "Error Placing Order");
@@ -69,4 +72,103 @@ exports.placeOrder = async (req, res) => {
       data: response.data,
     });
   }
+};
+
+exports.orderStats = async (req, res) => {
+  const currentDate = new Date();
+  const thirtyDaysAgo = new Date(currentDate);
+  thirtyDaysAgo.setDate(currentDate.getDate() - 30);
+
+  const ordersStats = await Order.aggregate([
+    {
+      $match: {
+        createdAt: {
+          $gte: thirtyDaysAgo,
+          $lte: currentDate,
+        },
+      },
+    },
+    {
+      $project: {
+        month: { $month: "$createdAt" },
+        day: { $dayOfMonth: "$createdAt" },
+        total: "$total",
+      },
+    },
+    {
+      $group: {
+        _id: { month: "$month", day: "$day" },
+        totalAmount: { $sum: "$total" },
+        orderCount: { $sum: 1 },
+      },
+    },
+    {
+      $sort: {
+        "_id.month": 1, // Sort by month in ascending order
+        "_id.day": 1, // Then sort by day in ascending order
+      },
+    },
+  ]);
+
+  res.json({ ordersStats });
+};
+
+exports.orderDetail = async (req, res) => {
+  const { orderId } = req.params;
+
+  if (!orderId) {
+    return sendError(res, "Order Id is Missing");
+  }
+
+  if (!isValidObjectId(orderId)) {
+    return sendError(res, "Invalid Order Id");
+  }
+
+  const order = await Order.aggregate([
+    {
+      $match: {
+        _id: ObjectId.createFromHexString(orderId),
+      },
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "userId",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+    {
+      $unwind: "$user", // Unwind the user array
+    },
+    {
+      $lookup: {
+        from: "products",
+        localField: "products.productId",
+        foreignField: "_id",
+        as: "populatedProducts",
+      },
+    },
+    {
+      $addFields: {
+        productsDetail: "$populatedProducts",
+      },
+    },
+    {
+      $project: {
+        populatedProducts: 0,
+      },
+    },
+    {
+      $sort: {
+        _id: 1,
+      },
+    },
+  ]);
+
+  if (!order || order.length === 0) {
+    return sendError(res, "Order Not Found");
+  }
+
+  res.json({ order: order[0] });
 };
