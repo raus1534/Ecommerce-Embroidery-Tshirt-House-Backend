@@ -23,7 +23,7 @@ exports.placeOrder = async (req, res) => {
   await order.save();
   await Cart.findOneAndDelete({ userId });
 
-  if (payment_method === "cashOnDelivery") {
+  if (payment_method === "Cash On Delivery") {
     res.json({ message: "Order Placed Succsesfully" });
   }
   if (payment_method === "eSewa") {
@@ -47,7 +47,7 @@ exports.placeOrder = async (req, res) => {
     res.json({ message: "Order Placed Successfully", formData });
   }
 
-  if (payment_method === "khalti") {
+  if (payment_method === "Khalti") {
     const formData = {
       return_url: "http://localhost:8000/api/payment/khalti/callback",
       website_url: "http://localhost:8000",
@@ -171,4 +171,17 @@ exports.orderDetail = async (req, res) => {
   }
 
   res.json({ order: order[0] });
+};
+exports.updateOrderDetail = async (req, res) => {
+  const { orderId } = req.params;
+
+  if (!orderId) return sendError(res, "Order Id is Missing");
+
+  if (!isValidObjectId(orderId)) return sendError(res, "Invalid Order Id");
+
+  const order = await Order.findById(orderId);
+  if (!order) return sendError(res, "Order Not Found");
+  order.status = "Delivered";
+  order.save();
+  res.json({ message: "Order Updated Successfully" });
 };

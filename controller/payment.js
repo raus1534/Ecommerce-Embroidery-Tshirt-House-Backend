@@ -26,6 +26,7 @@ exports.handleEsewaSuccess = async (req, res, next) => {
 
   req.transaction_uuid = decodedData.transaction_uuid;
   req.transaction_code = decodedData.transaction_code;
+  console.log(decodedData.transaction_uuid);
   next();
 };
 
