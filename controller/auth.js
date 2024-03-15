@@ -30,6 +30,8 @@ exports.loginUser = async (req, res) => {
 
   if (!comparePassword) return sendError(res, "Wrong Credentials");
 
+  if (!user.status) return sendError(res, "Account Disabled!!");
+
   const accessToken = jwt.sign(
     {
       user,

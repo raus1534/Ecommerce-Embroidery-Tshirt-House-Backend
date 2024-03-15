@@ -25,7 +25,13 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    img: { type: String },
+    status: {
+      type: Boolean,
+      default: true,
+    },
+    img: {
+      type: String,
+    },
   },
   { timestamps: true }
 );

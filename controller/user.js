@@ -1,33 +1,28 @@
 const Cart = require("../models/Cart");
+const Order = require("../models/Order");
 const User = require("../models/User");
 const { sendError } = require("../utils/errorHandle");
 
 exports.updateUser = async (req, res) => {
-  if (req.body.password) {
-    req.body.password = CryptoJS.AES.encrypt(
-      req.body.password,
-      process.env.PASS_SEC
-    ).toString();
-  }
+  const { userId } = req.params;
 
-  const updatedUser = await User.findByIdAndUpdate(
-    req.params.id,
-    {
-      $set: req.body,
-    },
-    { new: true }
-  );
-  res.status(200).json(updatedUser);
+  const user = await User.findById(userId);
+  if (!user) return sendError(res, "User Not Found");
+  const { status } = user;
 
-  res.status(500).json(err);
+  user.status = !status;
+  user.save();
+  res.json({ message: "User Updated Successfully" });
 };
 
 exports.findUserById = async (req, res) => {
   const { userId } = req.params;
   const user = await User.findById(userId);
   if (!user) return sendError(res, "User Doesn't Exist");
+
+  const orderQuantity = await Order.countDocuments({ userId });
   const { password, ...others } = user._doc;
-  res.status(200).json({ user: others });
+  res.status(200).json({ user: { ...others, orderQuantity } });
 };
 
 exports.deleteUser = async (req, res) => {
@@ -62,4 +57,3 @@ exports.userStats = async (req, res) => {
   ]);
   res.status(200).json({ userStats: data });
 };
-
