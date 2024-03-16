@@ -185,3 +185,12 @@ exports.updateOrderDetail = async (req, res) => {
   order.save();
   res.json({ message: "Order Updated Successfully" });
 };
+
+exports.getOrdersDetail = async (req, res) => {
+  const { userId } = req.params;
+  if (!userId) return sendError(res, "User Id Not Found");
+  if (!isValidObjectId(userId)) return sendError(res, "Invalid User Id");
+
+  const orders = await Order.find({ userId }).sort({ createdAt: -1 });
+  res.status(200).json({ orders });
+};
