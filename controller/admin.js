@@ -1,3 +1,4 @@
+const Newsletter = require("../models/Newsletter");
 const Order = require("../models/Order");
 const Product = require("../models/Product");
 const User = require("../models/User");
@@ -49,13 +50,13 @@ exports.getFeatureInfoDetails = async (req, res) => {
     },
   ]);
 
-  const userCount = await User.countDocuments();
+  const userCount = await User.countDocuments({ isAdmin: false });
   const productCount = await Product.countDocuments();
   res.status(200).json({
-    income,
+    income: income,
     users: userCount,
     products: productCount,
-    totalSales: totalSales[0].totalSum,
+    totalSales: totalSales[0]?.totalSum,
   });
 };
 
@@ -64,7 +65,7 @@ exports.getUserDetails = async (req, res) => {
 
   const users =
     isNew === "true"
-      ? await User.find().sort({ _id: -1 }).limit(5)
+      ? await User.find({ isAdmin: false }).sort({ _id: -1 }).limit(5)
       : await User.find({ isAdmin: false });
   res.status(200).json({ users });
 };
@@ -77,4 +78,10 @@ exports.getOrderDetails = async (req, res) => {
       ? await Order.find().sort({ _id: -1 }).limit(8)
       : await Order.find({}).populate("userId").sort({ createdAt: -1 });
   res.status(200).json({ orders });
+};
+exports.getNewsLetters = async (req, res) => {
+  const newsletters = await Newsletter.find({})
+    .populate("userId")
+    .sort({ createdAt: -1 });
+  res.status(200).json({ newsletters });
 };

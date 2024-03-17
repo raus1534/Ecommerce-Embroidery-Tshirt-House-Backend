@@ -1,7 +1,9 @@
+const { isValidObjectId } = require("mongoose");
 const Cart = require("../models/Cart");
 const Order = require("../models/Order");
 const User = require("../models/User");
 const { sendError } = require("../utils/errorHandle");
+const Newsletter = require("../models/Newsletter");
 
 exports.updateUser = async (req, res) => {
   const { userId } = req.params;
@@ -41,7 +43,7 @@ exports.userStats = async (req, res) => {
   const startOfYear = new Date(currentDate.getFullYear(), 0, 1); // January 1st of the current year
 
   const data = await User.aggregate([
-    { $match: { createdAt: { $gte: startOfYear } } },
+    { $match: { isAdmin: false, createdAt: { $gte: startOfYear } } },
     {
       $project: {
         month: { $month: "$createdAt" },
@@ -56,4 +58,19 @@ exports.userStats = async (req, res) => {
     { $sort: { _id: 1 } }, // Sort by _id in ascending order
   ]);
   res.status(200).json({ userStats: data });
+};
+
+exports.publishNewsletter = async (req, res) => {
+  const { userId, email } = req.body;
+
+  if (!isValidObjectId(userId)) return sendError(res, "Invalid User Id");
+  if (!email) return sendError(res, "Email Not Found");
+
+  const isExistingNewsletter = await Newsletter.findOne({ userId, email });
+  if (isExistingNewsletter) return sendError(res, "Already Published");
+
+  const newNewsLetter = new Newsletter({ userId, email });
+  newNewsLetter.save();
+
+  res.json({ message: "Email Recorded Successfully" });
 };
