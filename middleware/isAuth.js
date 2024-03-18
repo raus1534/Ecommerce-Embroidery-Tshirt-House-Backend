@@ -7,14 +7,25 @@ exports.isAuth = async (req, res, next) => {
 
   if (!authorization) return sendError(res, "Unauthorized Access");
 
-  const { user } = jwt.verify(authorization, process.env.JWT_SEC);
+  try {
+    const { user } = jwt.verify(authorization, process.env.JWT_SEC);
+    const userData = await User.findById(user._id);
+    if (!userData) return sendError(res, "User Profile Doesn't Exist");
 
-  const userData = await User.findById(user._id);
-  if (!userData) return sendError(res, "User Profile Doesn't Exist");
+    req.user = user;
 
-  req.user = user;
-
-  next();
+    next();
+  } catch (error) {
+    if (error.name === "TokenExpiredError") {
+      // Handle expired token error
+      return res.json({
+        tokenExpire: true,
+      });
+    } else {
+      // Handle other errors, such as invalid signature or malformed token
+      return sendError(res, "Invalid Token");
+    }
+  }
 };
 
 exports.isAdmin = async (req, res, next) => {
