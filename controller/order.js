@@ -14,7 +14,7 @@ exports.placeOrder = async (req, res) => {
   const order = new Order({
     userId,
     products,
-    total,
+    total: total + 110,
     shippingAddress,
     shippingContact,
     paymentMethod: payment_method,
